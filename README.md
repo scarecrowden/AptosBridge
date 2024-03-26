@@ -1,6 +1,9 @@
 # AptosBridge
 _Bridge From BSC/AVAXC <-> APTOS using AptosBridge_
 
+## Requirements
+`node 18`
+
 ## Install
 `npm install`
 
