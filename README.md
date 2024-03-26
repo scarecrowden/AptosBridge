@@ -1,5 +1,5 @@
 # AptosBridge
-_Bridge From BSC/AVAXC <-> APTOS using AptosBridge_
+_Bridge USDT From BSC/AVAXC <-> APTOS using AptosBridge_
 
 ## Requirements
 `node 18`
