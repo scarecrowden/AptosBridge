@@ -1,6 +1,7 @@
 import {bsc} from "../chains/bsc/index.js";
 import {avalanche} from "../chains/avalanche/index.js";
 
+// in $ value
 export const withdrawConfig = {
     'BSC': {
         sum: [1.5, 2],
