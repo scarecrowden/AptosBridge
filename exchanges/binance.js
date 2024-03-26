@@ -1,16 +1,13 @@
 import axios from 'axios'
 import crypto from 'crypto'
-import { makeLogger } from './utils/logger'
+import { makeLogger } from '../utils/logger.js'
 import { HttpsProxyAgent } from "https-proxy-agent"
-import {randomFloat} from "./utils/common";
-import {binanceConfig} from "./config.js";
+import {randomFloat} from "../utils/common.js";
+import {binanceConfig} from "../src/config.js";
 import ccxt from 'ccxt'
 
 export class Binance {
     binanceEndpoint = 'https://api.binance.com/sapi/v1/capital/withdraw/apply'
-    subAccountAssetsEndpoint = 'https://api.binance.com/sapi/v1/sub-account/assets'
-    subAccountTransfer = 'https://api.binance.com/sapi/v1/sub-account/universalTransfer'
-    subAccountListEndpoint = 'https://api.binance.com/sapi/v1/sub-account/list'
     logger
 
     constructor() {

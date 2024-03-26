@@ -1,6 +1,6 @@
 import {bridgeToAptos, getTokenBalance, shuffleArray} from "./bridgeToAptos.js";
 import {aptosBridgeChains, desiredVolumeConfig, sleepBetweenBridges, stableWithdrawAmount} from "./config.js";
-import { makeLogger } from "./utils/logger.js";
+import { makeLogger } from "../utils/logger.js";
 import {
     isBalanceError,
     random,
@@ -9,12 +9,12 @@ import {
     waitForBalance,
     waitForTransaction,
     withdraw
-} from "./utils/common.js";
+} from "../utils/common.js";
 import { formatEther, Wallet, formatUnits } from "ethers";
 import { bridgeFromAptos } from "./bridgeFromAptos.js";
 import { Contract } from "ethers";
 import { parseGwei } from "viem";
-import { getAptosAccountFromPrivateKey } from "./utils/aptos.js";
+import { getAptosAccountFromPrivateKey } from "../utils/aptos.js";
 import { PASS } from "./constants.js";
 const logger = makeLogger('volume')
 

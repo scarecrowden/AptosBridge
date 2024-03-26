@@ -1,12 +1,12 @@
-import {stableWithdrawAmount, withdrawConfig} from "../config.js";
-import {Binance} from "../binance.js";
+import {stableWithdrawAmount, withdrawConfig} from "../src/config.js";
+import {Binance} from "../exchanges/binance.js";
 import {makeLogger} from "./logger.js";
 import {chains} from "../chains/index.js";
 import BigNumber from "bignumber.js";
 import {Contract, formatEther, formatUnits, parseEther, parseUnits} from "ethers";
-import {APPROVAL_AMOUNT_MULTIPLIER} from "../constants";
+import {APPROVAL_AMOUNT_MULTIPLIER} from "../src/constants.js";
 import axios from "axios";
-import {getTokenBalance} from "../bridgeToAptos.js";
+import {getTokenBalance} from "../src/bridgeToAptos.js";
 import { parseGwei } from "viem"
 const logger = makeLogger('utils')
 

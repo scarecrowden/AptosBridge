@@ -1,5 +1,5 @@
-import {bsc} from "./chains/bsc/index.js";
-import {avalanche} from "./chains/avalanche/index.js";
+import {bsc} from "../chains/bsc/index.js";
+import {avalanche} from "../chains/avalanche/index.js";
 
 export const withdrawConfig = {
     'BSC': {

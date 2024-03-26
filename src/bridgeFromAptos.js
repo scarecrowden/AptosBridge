@@ -1,9 +1,9 @@
 import {shuffleArray} from "./bridgeToAptos.js";
 import Web3 from 'web3';
 import {AptosClient} from "aptos";
-import {getAptosAccountFromPrivateKey} from "./utils/aptos.js";
-import {random, sleep, withdraw} from "./utils/common.js";
-import {makeLogger} from "./utils/logger.js";
+import {getAptosAccountFromPrivateKey} from "../utils/aptos.js";
+import {random, sleep, withdraw} from "../utils/common.js";
+import {makeLogger} from "../utils/logger.js";
 import {ethers, formatUnits} from "ethers";
 import {APTOS_NATIVE_COIN, APTOS_USDT_COIN} from "./constants.js";
 import {aptosBridgeChains, minChainBalance, stableWithdrawAmount} from "./config.js";

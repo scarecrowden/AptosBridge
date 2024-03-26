@@ -2,8 +2,8 @@ import axios from 'axios'
 import crypto from 'crypto'
 import ccxt from 'ccxt'
 import { HttpsProxyAgent } from 'https-proxy-agent'
-import {okxConfig} from "./config.js";
-import {makeLogger} from "./utils/logger.js";
+import {okxConfig} from "../src/config.js";
+import {makeLogger} from "../utils/logger.js";
 
 export class OKX {
     baseUrl = 'https://www.okx.com'

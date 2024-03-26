@@ -1,8 +1,8 @@
-import {makeVolume} from "./volume.js";
+import {makeVolume} from "./src/volume.js";
 import fs from "fs";
 import {random, sleep} from "./utils/common.js";
 import {makeLogger} from "./utils/logger.js";
-import {sleepBetweenAccounts, TG_ID, TG_TOKEN} from "./config.js";
+import {sleepBetweenAccounts, TG_ID, TG_TOKEN} from "./src/config.js";
 import { Telegraf } from 'telegraf'
 const logger = makeLogger('index')
 function shuffle(array) {

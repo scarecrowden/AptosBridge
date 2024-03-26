@@ -16,9 +16,9 @@ import {
     randomFloat, sendTx, sleep,
     waitForBalance,
     withdraw
-} from "./utils/common.js";
-import {makeLogger} from "./utils/logger.js";
-import {getAptosAccountFromPrivateKey} from "./utils/aptos.js";
+} from "../utils/common.js";
+import {makeLogger} from "../utils/logger.js";
+import {getAptosAccountFromPrivateKey} from "../utils/aptos.js";
 const logger = makeLogger('bridgeToAptos')
 
 export const shuffleArray = (arr) => {
@@ -100,10 +100,6 @@ async function executeBridge(wallet, { toAddress, token, amount, destGas = 0.02 
                 [wallet.address, ZeroAddress],
                 adapterParams
             );
-            // let nativeFee = parseEther('0.013')
-            // const humanFee = formatEther(nativeFee[0])
-            // const reducedHumanFee = humanFee - (humanFee* 0.15)
-            // const fee = parseEther(reducedHumanFee.toString())
 
             const txParams = {
                 data: aptosBridgeContract.interface.encodeFunctionData(
