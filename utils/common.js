@@ -1,13 +1,15 @@
-import {stableWithdrawAmount, withdrawConfig} from "../src/config.js";
-import {Binance} from "../exchanges/binance.js";
+import {stableWithdrawAmount, withdrawConfig} from "../config.js";
+import {Binance} from "../binance.js";
 import {makeLogger} from "./logger.js";
 import {chains} from "../chains/index.js";
 import BigNumber from "bignumber.js";
 import {Contract, formatEther, formatUnits, parseEther, parseUnits} from "ethers";
-import {APPROVAL_AMOUNT_MULTIPLIER} from "../src/constants.js";
+import {APPROVAL_AMOUNT_MULTIPLIER} from "../constants";
 import axios from "axios";
-import {getTokenBalance} from "../src/bridgeToAptos.js";
+import {getTokenBalance} from "../bridgeToAptos.js";
 import { parseGwei } from "viem"
+import {OKX} from "../okx.js";
+import {aptos} from "../chains/aptos/index.js";
 const logger = makeLogger('utils')
 
 export function random(min, max) {
@@ -33,15 +35,20 @@ export function shuffle(array) {
     return array
 }
 
-export async function withdraw(coin, network, address, stableCoin = false){
+export async function withdraw(coin, network, address, stableCoin = false, exchange = 'binance'){
     let withdrawRange = stableCoin ? stableWithdrawAmount : withdrawConfig[network].sum
     let sum = randomFloat(withdrawRange[0], withdrawRange[1])
 
     const tokenPrice = await getCurrentPrice(coin)
     const tokenCount = sum / tokenPrice
 
-    const binance = new Binance()
-    await binance.withdraw(address, network, coin, tokenCount.toString())
+    if (exchange === 'binance') {
+        const binance = new Binance()
+        await binance.withdraw(address, network, coin, tokenCount.toString())
+    } else {
+        const okx = new OKX()
+        await okx.withdraw(address, aptos.name, aptos.nativeToken.ticker, tokenCount.toString())
+    }
 }
 
 export async function waitForBalance(oldBalance, provider, evmWallet, token = undefined){
@@ -91,9 +98,6 @@ export const approveToken = async (wallet, { amount, token, spender, chain }) =>
                 const humanAmount = formatUnits(amount.toString(), token.decimals)
                 const randomMultiplier = randomFloat(1, APPROVAL_AMOUNT_MULTIPLIER)
                 const approveAmount = humanAmount * randomMultiplier
-                // const bnMultipliedAmount = new BigNumber(amount)
-                //     .multipliedBy(randomFloat(1, APPROVAL_AMOUNT_MULTIPLIER))
-                //     .integerValue(BigNumber.ROUND_FLOOR);
 
                 logger.info(`Approving ${approveAmount} ${token.ticker}...`)
 
