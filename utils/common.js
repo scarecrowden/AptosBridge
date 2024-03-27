@@ -1,15 +1,15 @@
-import {stableWithdrawAmount, withdrawConfig} from "../config.js";
-import {Binance} from "../binance.js";
+import {stableWithdrawAmount, withdrawConfig} from "../src/config.js";
+import {Binance} from "../exchanges/binance.js";
 import {makeLogger} from "./logger.js";
 import {chains} from "../chains/index.js";
 import BigNumber from "bignumber.js";
 import {Contract, formatEther, formatUnits, parseEther, parseUnits} from "ethers";
-import {APPROVAL_AMOUNT_MULTIPLIER} from "../constants";
+import {APPROVAL_AMOUNT_MULTIPLIER} from "../src/constants.js";
 import axios from "axios";
-import {getTokenBalance} from "../bridgeToAptos.js";
+import {getTokenBalance} from "../src/bridgeToAptos.js";
 import { parseGwei } from "viem"
-import {OKX} from "../okx.js";
 import {aptos} from "../chains/aptos/index.js";
+import {OKX} from "../exchanges/okx.js";
 const logger = makeLogger('utils')
 
 export function random(min, max) {
@@ -24,16 +24,6 @@ export function randomFloat(min, max) {
 
 export const sleep = async (seconds) => new Promise(resolve => setTimeout(resolve, seconds * 1000))
 
-export function shuffle(array) {
-    let currentIndex = array.length,  randomIndex
-    while (currentIndex > 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
-    }
-
-    return array
-}
 
 export async function withdraw(coin, network, address, stableCoin = false, exchange = 'binance'){
     let withdrawRange = stableCoin ? stableWithdrawAmount : withdrawConfig[network].sum
