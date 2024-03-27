@@ -63,7 +63,7 @@ export async function bridgeToAptos(evmKey, aptosKey, chain, stableToken, stable
 
     const aptosWallet = getAptosAccountFromPrivateKey(aptosKey);
 
-    logger.info(`about to bridge ${usdStableBalanceForWork} ${stableToken.ticker} from ${chain.name} -> APTOS`)
+    logger.info(`about to bridge ${usdtBalance} ${stableToken.ticker} from ${chain.name} -> APTOS`)
     await executeBridge(evmWallet, {
         toAddress: aptosWallet.address().toString(),
         token: stableToken,
