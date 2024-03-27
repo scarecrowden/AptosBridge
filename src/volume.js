@@ -70,7 +70,7 @@ export async function makeVolume(evmKey, aptosKey, depositAddress) {
         });
         const usdStableBalanceForWork = formatUnits(balanceForWork, stableCoin.decimals)
 
-        await bridgeToAptos(evmKey, aptosKey, chain, stableCoin, balanceForWork)
+        await bridgeToAptos(evmKey, aptosKey, chain, stableCoin, balanceForWork, usdStableBalanceForWork)
         tgMessages.push(`${PASS} bridge ${chain.name} -> APTOS`)
 
         sleepTime = random(sleepBetweenBridges[0], sleepBetweenBridges[1]);

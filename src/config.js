@@ -43,6 +43,7 @@ export const okxConfig = {
 
 export const desiredVolumeConfig = [2000, 4000]
 export const stableWithdrawAmount = [1001, 2001]
+export const minStableBalance = 500
 
 export const TG_TOKEN = ''
 export const TG_ID = -1

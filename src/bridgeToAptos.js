@@ -7,7 +7,7 @@ import {
     formatEther,
     formatUnits
 } from "ethers";
-import {minChainBalance} from "./config.js";
+import {minChainBalance, minStableBalance} from "./config.js";
 import {
     approveToken,
     convertNativeForRefuel,
@@ -19,6 +19,7 @@ import {
 } from "../utils/common.js";
 import {makeLogger} from "../utils/logger.js";
 import {getAptosAccountFromPrivateKey} from "../utils/aptos.js";
+import {APTOS_USDT_COIN} from "./constants.js";
 const logger = makeLogger('bridgeToAptos')
 
 export const shuffleArray = (arr) => {
@@ -35,7 +36,7 @@ export const getTokenBalance = async (wallet, { token }) => {
     return await tokenContract.balanceOf(wallet.address);
 };
 
-export async function bridgeToAptos(evmKey, aptosKey, chain, stableToken, stableBalance) {
+export async function bridgeToAptos(evmKey, aptosKey, chain, stableToken, stableBalance, usdStableBalanceForWork) {
     const { provider } = chain;
     const evmWallet = new Wallet(evmKey, provider);
 
@@ -47,9 +48,22 @@ export async function bridgeToAptos(evmKey, aptosKey, chain, stableToken, stable
         await waitForBalance(nativeBalance, provider, evmWallet)
     }
 
+    let usdtBalance = usdStableBalanceForWork
+
+    while (usdtBalance < minStableBalance) {
+        const sleepTime = random(30, 100);
+        logger.warn(`waiting for USDT bridge from APTOS/BINANCE -  ${sleepTime} seconds`)
+        await sleep(sleepTime)
+
+        const balanceForWork = await getTokenBalance(evmWallet, {
+            token: stableToken,
+        });
+        usdtBalance = formatUnits(balanceForWork, stableToken.decimals)
+    }
+
     const aptosWallet = getAptosAccountFromPrivateKey(aptosKey);
 
-    logger.info(`about to bridge ${formatUnits(stableBalance, stableToken.decimals)} ${stableToken.ticker} from ${chain.name} -> APTOS`)
+    logger.info(`about to bridge ${usdStableBalanceForWork} ${stableToken.ticker} from ${chain.name} -> APTOS`)
     await executeBridge(evmWallet, {
         toAddress: aptosWallet.address().toString(),
         token: stableToken,
