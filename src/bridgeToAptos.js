@@ -11,7 +11,7 @@ import {minChainBalance, minStableBalance} from "./config.js";
 import {
     approveToken,
     convertNativeForRefuel,
-    getChainByWallet,
+    getChainByWallet, getNativeBalance,
     random,
     randomFloat, sendTx, sleep,
     waitForBalance,
@@ -47,7 +47,7 @@ export async function bridgeToAptos(evmKey, aptosKey, chain, stableToken, weiBal
     const { provider } = chain;
     const evmWallet = new Wallet(evmKey, provider);
 
-    const nativeBalance = await provider.getBalance(evmWallet.address);
+    const nativeBalance = await getNativeBalance(provider, evmWallet)
 
     if (formatEther(nativeBalance) < minChainBalance[chain.name]) {
         logger.info(`${evmWallet.address} withdrawing gas to ${chain.name}`)

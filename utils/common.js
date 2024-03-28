@@ -41,6 +41,17 @@ export async function withdraw(coin, network, address, stableCoin = false, excha
     }
 }
 
+export async function getNativeBalance(provider, evmWallet) {
+    while(true) {
+        try {
+            return await provider.getBalance(evmWallet.address);
+        } catch (error) {
+            logger.error(`error getting balanace trying again - ${error}`)
+            await sleep(5)
+        }
+    }
+}
+
 export async function waitForBalance(oldBalance, provider, evmWallet, token = undefined){
     let newBalance
     if (token) {
@@ -48,8 +59,9 @@ export async function waitForBalance(oldBalance, provider, evmWallet, token = un
             token: token,
         });
     } else {
-        newBalance = await provider.getBalance(evmWallet.address);
+        newBalance = await getNativeBalance(provider, evmWallet)
     }
+
     while (newBalance === oldBalance) {
         logger.info(`waiting for withdraw, current balance: ${formatEther(newBalance)}`)
         const sleepTime = random(30, 100);
@@ -59,10 +71,9 @@ export async function waitForBalance(oldBalance, provider, evmWallet, token = un
                 token: token,
             });
         } else {
-            newBalance = await provider.getBalance(evmWallet.address);
+            newBalance = await getNativeBalance(provider, evmWallet)
         }
     }
-
     return newBalance
 }
 
@@ -196,7 +207,3 @@ export async function waitForTransaction (hash, provider) {
         throw new Error('Transaction reverted. ')
     }
 }
-
-
-
-
