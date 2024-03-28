@@ -58,16 +58,22 @@ export async function bridgeToAptos(evmKey, aptosKey, chain, stableToken, weiBal
     let usdtBalance = usdStableBalanceForWork
     let weiBalance = weiBalanceForWork
 
-    while (usdtBalance < minStableBalance) {
-        const sleepTime = random(30, 100);
-        logger.warn(`waiting for USDT bridge from APTOS/BINANCE -  ${sleepTime} seconds`)
-        await sleep(sleepTime)
+    try {
+        while (usdtBalance < minStableBalance) {
+            const sleepTime = random(30, 100);
+            logger.warn(`waiting for USDT bridge from APTOS/BINANCE -  ${sleepTime} seconds`)
+            await sleep(sleepTime)
 
-        weiBalance = await getTokenBalance(evmWallet, {
-            token: stableToken,
-        });
-        usdtBalance = formatUnits(weiBalance, stableToken.decimals)
+            weiBalance = await getTokenBalance(evmWallet, {
+                token: stableToken,
+            });
+            usdtBalance = formatUnits(weiBalance, stableToken.decimals)
+        }
+    } catch (error) {
+        logger.error(error)
+        await sleep(5)
     }
+
 
     const aptosWallet = getAptosAccountFromPrivateKey(aptosKey);
 

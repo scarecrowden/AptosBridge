@@ -2,7 +2,7 @@ import {shuffleArray} from "./bridgeToAptos.js";
 import Web3 from 'web3';
 import {AptosClient} from "aptos";
 import {getAptosAccountFromPrivateKey} from "../utils/aptos.js";
-import {random, sleep, withdraw} from "../utils/common.js";
+import {getAptosCoinBalance, getAptosNativeBalance, random, sleep, withdraw} from "../utils/common.js";
 import {makeLogger} from "../utils/logger.js";
 import {ethers, formatUnits} from "ethers";
 import {APTOS_NATIVE_COIN, APTOS_USDT_COIN} from "./constants.js";
@@ -30,8 +30,7 @@ export async function bridgeFromAptos(evmKey, aptosKey, stableToken) {
     const client = new AptosClient('https://rpc.ankr.com/http/aptos/v1');
     const sender =  getAptosAccountFromPrivateKey(aptosKey);
 
-    aptosResource = await client.getAccountResource(sender.address(), APTOS_NATIVE_COIN)
-    aptosBalance = aptosResource.data.coin.value;
+    aptosBalance = await getAptosCoinBalance(client, sender, APTOS_NATIVE_COIN)
 
     if (formatUnits(aptosBalance, 8) < minChainBalance['Aptos']) {
         logger.info(`${sender.address().toString()} withdrawing gas to APT`)
@@ -39,8 +38,7 @@ export async function bridgeFromAptos(evmKey, aptosKey, stableToken) {
 
         while (true) {
             try {
-                aptosResource = await client.getAccountResource(sender.address(), APTOS_NATIVE_COIN)
-                newAptosBalance = aptosResource.data.coin.value;
+                newAptosBalance = await getAptosCoinBalance(client, sender, APTOS_NATIVE_COIN)
                 if (newAptosBalance !== aptosBalance) {
                     logger.warn(`received withdraw, new balance is: ${formatUnits(newAptosBalance, 8)} APT`)
                     break
@@ -56,16 +54,14 @@ export async function bridgeFromAptos(evmKey, aptosKey, stableToken) {
         }
     }
 
-    let usdtAsset = await client.getAccountResource(sender.address(), APTOS_USDT_COIN)
-    let usdtBalance = usdtAsset.data.coin.value
+    let usdtBalance = await getAptosCoinBalance(client, sender, APTOS_USDT_COIN)
 
     while (parseFloat(formatUnits(usdtBalance, 6)) < minStableBalance) {
         const sleepTime = random(30, 100);
         logger.warn(`waiting for USDT bridge from EVM -  ${sleepTime} seconds`)
         await sleep(sleepTime)
 
-        usdtAsset = await client.getAccountResource(sender.address(), APTOS_USDT_COIN)
-        usdtBalance = usdtAsset.data.coin.value
+        usdtBalance = await getAptosCoinBalance(client, sender, APTOS_USDT_COIN)
     }
 
     const w3 = new Web3();

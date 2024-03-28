@@ -4,7 +4,7 @@ import {makeLogger} from "./logger.js";
 import {chains} from "../chains/index.js";
 import BigNumber from "bignumber.js";
 import {Contract, formatEther, formatUnits, parseEther, parseUnits} from "ethers";
-import {APPROVAL_AMOUNT_MULTIPLIER} from "../src/constants.js";
+import {APPROVAL_AMOUNT_MULTIPLIER, APTOS_NATIVE_COIN} from "../src/constants.js";
 import axios from "axios";
 import {getTokenBalance} from "../src/bridgeToAptos.js";
 import { parseGwei } from "viem"
@@ -51,6 +51,19 @@ export async function getNativeBalance(provider, evmWallet) {
         }
     }
 }
+
+export async function getAptosCoinBalance(client, sender, coin) {
+    while(true) {
+        try {
+            const aptosResource = await client.getAccountResource(sender.address(), coin)
+            return aptosResource.data.coin.value;
+        } catch (error) {
+            logger.error(`error getting balanace trying again - ${error}`)
+            await sleep(5)
+        }
+    }
+}
+
 
 export async function waitForBalance(oldBalance, provider, evmWallet, token = undefined){
     let newBalance
