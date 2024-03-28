@@ -32,8 +32,15 @@ export const shuffleArray = (arr) => {
 };
 
 export const getTokenBalance = async (wallet, { token }) => {
-    const tokenContract = new Contract(token.address, token.abi, wallet);
-    return await tokenContract.balanceOf(wallet.address);
+    while(true) {
+        try {
+            const tokenContract = new Contract(token.address, token.abi, wallet);
+            return await tokenContract.balanceOf(wallet.address);
+        } catch (error) {
+            logger.error(`error, trying again ${error}`)
+            await sleep(5)
+        }
+    }
 };
 
 export async function bridgeToAptos(evmKey, aptosKey, chain, stableToken, weiBalanceForWork, usdStableBalanceForWork) {

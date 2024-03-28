@@ -84,7 +84,11 @@ const main = async () => {
 
         const strMessagesToSend = tgMessages.join('\n')
         if (TG_ID !== -1) {
-            await bot.telegram.sendMessage(TG_ID, strMessagesToSend)
+            try {
+                await bot.telegram.sendMessage(TG_ID, strMessagesToSend)
+            } catch (error) {
+                logger.error(`failed sending tg message ${error}`)
+            }
         }
 
         removeAccountFromFile(privateKey,  "./data/evm_private_keys.txt")
