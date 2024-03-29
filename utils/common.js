@@ -153,6 +153,7 @@ export function isBalanceError(error) {
         error.toString().includes('Not enough balance') ||
         error.toString().includes('gas required exceeds allowance') ||
         error.toString().includes('insufficient balance') ||
+        error.toString().includes('missing revert data') ||
         error.toString().includes('Execution reverted for an unknown reason');
 }
 
