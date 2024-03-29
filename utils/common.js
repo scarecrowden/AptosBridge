@@ -75,8 +75,8 @@ export async function waitForBalance(oldBalance, provider, evmWallet, token = un
         newBalance = await getNativeBalance(provider, evmWallet)
     }
 
-    while (newBalance === oldBalance) {
-        logger.info(`waiting for withdraw, current balance: ${formatEther(newBalance)}`)
+    while (newBalance <= oldBalance) {
+        logger.info(`waiting for withdraw/bridge, current balance: ${formatEther(newBalance)}`)
         const sleepTime = random(30, 100);
         await sleep(sleepTime)
         if (token) {

@@ -1,5 +1,10 @@
 import {bridgeToAptos, getTokenBalance, shuffleArray} from "./bridgeToAptos.js";
-import {aptosBridgeChains, desiredVolumeConfig, sleepBetweenBridges, stableWithdrawAmount} from "./config.js";
+import {
+    aptosBridgeChains,
+    desiredVolumeConfig, minStableBalance,
+    sleepBetweenBridges,
+    stableWithdrawAmount
+} from "./config.js";
 import { makeLogger } from "../utils/logger.js";
 import {
     isBalanceError,
@@ -16,6 +21,7 @@ import { Contract } from "ethers";
 import { parseGwei } from "viem";
 import { getAptosAccountFromPrivateKey } from "../utils/aptos.js";
 import { PASS } from "./constants.js";
+import {avalanche} from "../chains/avalanche/index.js";
 const logger = makeLogger('volume')
 
 export async function makeVolume(evmKey, aptosKey, depositAddress) {
@@ -80,7 +86,6 @@ export async function makeVolume(evmKey, aptosKey, depositAddress) {
         const destChain = await bridgeFromAptos(evmKey, aptosKey, stableCoin)
         tgMessages.push(`${PASS} bridge APTOS -> ${destChain.name}`)
 
-        // TODO WAIT FOR BALANCE AFTER BRIDGE, AND NOT SECONDS
         sleepTime = random(sleepBetweenBridges[0], sleepBetweenBridges[1]);
         logger.info(`sleeping after bridge from aptos, ${sleepTime} seconds...`)
         await sleep(sleepTime)
@@ -113,15 +118,14 @@ async function depositToCex(evmKey, depositAddress, chain) {
                 gasPrice = parseGwei(randomBscGwei)
             }
 
-            const stableBalance = await getTokenBalance(evmWallet, {
-                token: stableCoin,
-            });
-            const usdStableBalance = parseInt(formatUnits(stableBalance, stableCoin.decimals))
+            let newBalance = await waitForBalance(minStableBalance, provider, evmWallet, stableCoin)
 
-            logger.info(`will send ${usdStableBalance} ${stableCoin.ticker}, from ${chain.name} -> ${depositAddress}`)
+            let newUsdStableBalance = parseInt(formatUnits(newBalance, stableCoin.decimals))
+
+            logger.info(`will send ${newUsdStableBalance} ${stableCoin.ticker}, from ${chain.name} -> ${depositAddress}`)
 
             const tokenContract = new Contract(stableCoin.address, stableCoin.abi, evmWallet);
-            const res = await tokenContract.transfer(depositAddress, stableBalance, { gasPrice })
+            const res = await tokenContract.transfer(depositAddress, newBalance, { gasPrice })
             logger.info(`Sent tx > ${chain.scan}${res.hash}`);
 
             await waitForTransaction(res.hash, provider)

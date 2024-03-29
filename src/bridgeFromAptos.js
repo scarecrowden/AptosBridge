@@ -93,17 +93,16 @@ export async function bridgeFromAptos(evmKey, aptosKey, stableToken) {
             return destChain
         } catch (err) {
             logger.error(`${sender.address()} | error occurred while bridging from aptos - ${err}`)
-            retries += 1
-            if (retries === 3) {
-                throw err
-            }
+            // retries += 1
+            // if (retries === 3) {
+            //     throw err
+            // }
 
             destChain = shuffleArray(aptosBridgeChains)[0];
 
             sleepTime = random(10, 100);
             logger.info(`sleeping and trying again with other random dest chain - ${sleepTime} seconds....`)
             await sleep(sleepTime)
-            fee += '1100000'
         }
     }
 
