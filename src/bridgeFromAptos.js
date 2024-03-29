@@ -7,7 +7,6 @@ import {makeLogger} from "../utils/logger.js";
 import {ethers, formatUnits} from "ethers";
 import {APTOS_NATIVE_COIN, APTOS_USDT_COIN} from "./constants.js";
 import {aptosBridgeChains, minChainBalance, minStableBalance, stableWithdrawAmount} from "./config.js";
-import {formatEther} from "ethers/lib.esm";
 
 const logger = makeLogger('bridgeFromAptos')
 
@@ -72,6 +71,7 @@ export async function bridgeFromAptos(evmKey, aptosKey, stableToken) {
     let retries = 0;
     let sleepTime;
     let fee = "11000000";
+    let isWithdrawn = false;
     while (true) {
         try {
             await sendTransactionAptos({
@@ -95,7 +95,7 @@ export async function bridgeFromAptos(evmKey, aptosKey, stableToken) {
         } catch (err) {
             logger.error(`${sender.address()} | error occurred while bridging from aptos - ${err}`)
 
-            if (isBalanceError(err)) {
+            if (isBalanceError(err) && !isWithdrawn) {
                 logger.warn(`native balance low, withdraw from okx apt`)
                 await withdraw('APT', 'Aptos', sender.address().toString(), false, 'okx')
 
@@ -104,6 +104,7 @@ export async function bridgeFromAptos(evmKey, aptosKey, stableToken) {
                         newAptosBalance = await getAptosCoinBalance(client, sender, APTOS_NATIVE_COIN)
                         if (newAptosBalance !== aptosBalance) {
                             logger.warn(`received withdraw, new balance is: ${formatUnits(newAptosBalance, 8)} APT`)
+                            isWithdrawn = true;
                             break
                         }
                         const sleepTime = random(30, 100);
