@@ -2,11 +2,12 @@ import {shuffleArray} from "./bridgeToAptos.js";
 import Web3 from 'web3';
 import {AptosClient} from "aptos";
 import {getAptosAccountFromPrivateKey} from "../utils/aptos.js";
-import {getAptosCoinBalance, random, sleep, withdraw} from "../utils/common.js";
+import {getAptosCoinBalance, isBalanceError, random, sleep, waitForBalance, withdraw} from "../utils/common.js";
 import {makeLogger} from "../utils/logger.js";
 import {ethers, formatUnits} from "ethers";
 import {APTOS_NATIVE_COIN, APTOS_USDT_COIN} from "./constants.js";
 import {aptosBridgeChains, minChainBalance, minStableBalance, stableWithdrawAmount} from "./config.js";
+import {formatEther} from "ethers/lib.esm";
 
 const logger = makeLogger('bridgeFromAptos')
 
@@ -93,6 +94,27 @@ export async function bridgeFromAptos(evmKey, aptosKey, stableToken) {
             return destChain
         } catch (err) {
             logger.error(`${sender.address()} | error occurred while bridging from aptos - ${err}`)
+
+            if (isBalanceError(err)) {
+                logger.warn(`native balance low, withdraw from okx apt`)
+                await withdraw('APT', 'Aptos', sender.address().toString(), false, 'okx')
+
+                while (true) {
+                    try {
+                        newAptosBalance = await getAptosCoinBalance(client, sender, APTOS_NATIVE_COIN)
+                        if (newAptosBalance !== aptosBalance) {
+                            logger.warn(`received withdraw, new balance is: ${formatUnits(newAptosBalance, 8)} APT`)
+                            break
+                        }
+                        const sleepTime = random(30, 100);
+                        logger.warn(`waiting for withdraw of APT from okx -  ${sleepTime} seconds`)
+                        await sleep(sleepTime)
+                    } catch (e) {
+                        logger.error(`error - ${e}, try again in 10 sec...`)
+                        await sleep(10)
+                    }
+                }
+            }
             // retries += 1
             // if (retries === 3) {
             //     throw err
