@@ -94,6 +94,7 @@ export class OKX {
             } else {
                 this.logger.info(`${address} | OKX withdraw error: ${e}`)
             }
+            throw e
         }
     }
 }

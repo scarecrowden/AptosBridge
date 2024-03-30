@@ -50,9 +50,17 @@ export async function bridgeToAptos(evmKey, aptosKey, chain, stableToken, weiBal
     const nativeBalance = await getNativeBalance(provider, evmWallet)
 
     if (formatEther(nativeBalance) < minChainBalance[chain.name]) {
-        logger.info(`${evmWallet.address} withdrawing gas to ${chain.name}`)
-        await withdraw(chain.nativeToken.ticker, chain.name, evmWallet.address, false)
-        await waitForBalance(nativeBalance, provider, evmWallet)
+        while (true) {
+            try {
+                logger.info(`${evmWallet.address} withdrawing gas to ${chain.name}`)
+                await withdraw(chain.nativeToken.ticker, chain.name, evmWallet.address, false)
+                await waitForBalance(nativeBalance, provider, evmWallet)
+                break
+            } catch (error) {
+                logger.error(`error while withdrawing ${error}, try again`)
+                await sleep(10)
+            }
+        }
     }
 
     let usdtBalance = usdStableBalanceForWork
