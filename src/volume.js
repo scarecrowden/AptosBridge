@@ -15,7 +15,7 @@ import {
     waitForTransaction,
     withdraw
 } from "../utils/common.js";
-import {formatEther, Wallet, formatUnits, parseEther} from "ethers";
+import {formatEther, Wallet, formatUnits, parseEther, parseUnits} from "ethers";
 import { bridgeFromAptos } from "./bridgeFromAptos.js";
 import { Contract } from "ethers";
 import { parseGwei } from "viem";
@@ -116,7 +116,7 @@ async function depositToCex(evmKey, depositAddress, chain) {
                 gasPrice = parseGwei(randomBscGwei)
             }
 
-            let newBalance = await waitForBalance(parseEther(minStableBalance.toString()), provider, evmWallet, stableCoin)
+            let newBalance = await waitForBalance(parseUnits(minStableBalance.toString(), stableCoin.decimals), provider, evmWallet, stableCoin)
 
             let newUsdStableBalance = formatUnits(newBalance, stableCoin.decimals)
 
