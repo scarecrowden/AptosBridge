@@ -64,19 +64,17 @@ export async function makeVolume(evmKey, aptosKey, depositAddress) {
     }
 
     let sleepTime;
+    let usdtBalance;
 
     logger.info(`${evmWallet.address} | need to do volume ${desiredVolume}$`)
     tgMessages.push(`will complete ${desiredVolume} USDT volume`)
+
     while (currentVolume < desiredVolume) {
         const { provider, stableCoin } = chain;
         const evmWallet = new Wallet(evmKey, provider);
 
-        balanceForWork = await getTokenBalance(evmWallet, {
-            token: stableCoin,
-        });
-        const usdStableBalanceForWork = formatUnits(balanceForWork, stableCoin.decimals)
+        usdtBalance = await bridgeToAptos(evmKey, aptosKey, chain, stableCoin)
 
-        await bridgeToAptos(evmKey, aptosKey, chain, stableCoin, balanceForWork, usdStableBalanceForWork)
         tgMessages.push(`${PASS} bridge ${chain.name} -> APTOS`)
 
         sleepTime = random(sleepBetweenBridges[0], sleepBetweenBridges[1]);
@@ -90,7 +88,7 @@ export async function makeVolume(evmKey, aptosKey, depositAddress) {
         logger.info(`sleeping after bridge from aptos, ${sleepTime} seconds...`)
         await sleep(sleepTime)
 
-        currentVolume += (parseInt(usdStableBalanceForWork) * 2)
+        currentVolume += (parseInt(usdtBalance) * 2)
         logger.info(`${evmWallet.address} | current volume is ${currentVolume}`)
 
         chain = destChain
