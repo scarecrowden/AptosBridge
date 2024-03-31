@@ -26,18 +26,29 @@ export const sleep = async (seconds) => new Promise(resolve => setTimeout(resolv
 
 
 export async function withdraw(coin, network, address, stableCoin = false, exchange = 'binance'){
-    let withdrawRange = stableCoin ? stableWithdrawAmount : withdrawConfig[network].sum
-    let sum = randomFloat(withdrawRange[0], withdrawRange[1])
+    while (true) {
+        try {
+            let withdrawRange = stableCoin ? stableWithdrawAmount : withdrawConfig[network].sum
+            let sum = randomFloat(withdrawRange[0], withdrawRange[1])
 
-    const tokenPrice = await getCurrentPrice(coin)
-    const tokenCount = sum / tokenPrice
+            const tokenPrice = await getCurrentPrice(coin)
+            const tokenCount = sum / tokenPrice
 
-    if (exchange === 'binance') {
-        const binance = new Binance()
-        await binance.withdraw(address, network, coin, tokenCount.toString())
-    } else {
-        const okx = new OKX()
-        await okx.withdraw(address, aptos.name, aptos.nativeToken.ticker, tokenCount.toString())
+            logger.info(`${address} | ${network} | withdrawing ${tokenCount} ${coin} from ${exchange}`);
+
+            if (exchange === 'binance') {
+                const binance = new Binance()
+                await binance.withdraw(address, network, coin, tokenCount.toString())
+            } else {
+                const okx = new OKX()
+                await okx.withdraw(address, aptos.name, aptos.nativeToken.ticker, tokenCount.toString())
+            }
+
+            break
+        } catch(error) {
+            logger.error(`${address} | ${exchange} | error while withdrawing ${coin} - ${error}`)
+            await sleep(5)
+        }
     }
 }
 

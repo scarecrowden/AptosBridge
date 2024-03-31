@@ -85,8 +85,11 @@ export class OKX {
                 if (response.data.code === '0') {
                     this.logger.info(`${address} | OKX withdraw success`)
                 } else {
-                    this.logger.info(`${address} | OKX withdraw unsuccessful: ${response.data.msg}`)
+                    throw new Error(`${address} | OKX withdraw unsuccessful: ${response.data.msg}`)
                 }
+            }
+            else {
+                throw new Error(`${address} | OKX incorrect status code received, ${response.data}`)
             }
         } catch (e) {
             if (e.response) {

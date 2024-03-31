@@ -63,7 +63,6 @@ function removeAccountFromFile(account, filePath) {
     // Write back to the file
     try {
         fs.writeFileSync(filePath, newRecipients.join('\n'), 'utf8');
-        logger.info("account removed successfully.");
     } catch (err) {
         logger.error("Error writing to file:", err);
     }

@@ -33,15 +33,9 @@ export async function bridgeFromAptos(evmKey, aptosKey, stableToken) {
     aptosBalance = await getAptosCoinBalance(client, sender, APTOS_NATIVE_COIN)
 
     if (formatUnits(aptosBalance, 8) < minChainBalance['Aptos']) {
-        let withdrawn = false;
+        await withdraw('APT', 'Aptos', sender.address().toString(), false, 'okx')
         while (true) {
             try {
-                if (!withdrawn) {
-                    logger.info(`${sender.address().toString()} withdrawing gas to APT`)
-                    await withdraw('APT', 'Aptos', sender.address().toString(), false, 'okx')
-                    withdrawn = true
-                }
-
                 newAptosBalance = await getAptosCoinBalance(client, sender, APTOS_NATIVE_COIN)
                 if (newAptosBalance !== aptosBalance) {
                     logger.warn(`received withdraw, new balance is: ${formatUnits(newAptosBalance, 8)} APT`)
